@@ -3,6 +3,23 @@ export type ExpenseCategory = 'Transporte' | 'Hospedagem' | 'Alimentação' | 'P
 
 export type Language = 'pt' | 'en' | 'es';
 
+export type CurrencyCode = 'BRL' | 'USD' | 'EUR' | 'GBP' | 'JPY' | 'ARS';
+
+export interface Currency {
+  code: CurrencyCode;
+  symbol: string;
+  name: string;
+}
+
+export const CURRENCIES: Currency[] = [
+  { code: 'BRL', symbol: 'R$', name: 'Real Brasileiro' },
+  { code: 'USD', symbol: '$', name: 'Dólar Americano' },
+  { code: 'EUR', symbol: '€', name: 'Euro' },
+  { code: 'GBP', symbol: '£', name: 'Libra Esterlina' },
+  { code: 'JPY', symbol: '¥', name: 'Iene Japonês' },
+  { code: 'ARS', symbol: '$', name: 'Peso Argentino' },
+];
+
 export interface Expense {
   id: string;
   description: string;

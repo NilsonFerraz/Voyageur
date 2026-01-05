@@ -1,7 +1,7 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Always initialize GoogleGenAI using the process.env.API_KEY directly as a named parameter.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const suggestItinerary = async (destination: string, days: number) => {
   const response = await ai.models.generateContent({
@@ -33,5 +33,7 @@ export const suggestItinerary = async (destination: string, days: number) => {
     }
   });
 
-  return JSON.parse(response.text || '[]');
+  // Access the .text property directly and trim whitespace before parsing JSON.
+  const jsonStr = response.text?.trim() || '[]';
+  return JSON.parse(jsonStr);
 };

@@ -1,27 +1,33 @@
-
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { TravelPlan, Language } from '../types';
+import { TravelPlan, Language, Currency } from '../types';
 import { TrendingDown, Wallet, Calendar, ListChecks, AlertCircle } from 'lucide-react';
 import { translations } from '../translations';
+import { formatCurrency } from '../services/currency';
 
 interface DashboardProps {
   plan: TravelPlan;
   onUpdate: (plan: TravelPlan) => void;
   language: Language;
+  currency: Currency;
+  convert: (val: number) => number;
 }
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
 
-const Dashboard: React.FC<DashboardProps> = ({ plan, language }) => {
+const Dashboard: React.FC<DashboardProps> = ({ plan, language, currency, convert }) => {
   const t = translations[language];
-  const totalSpent = plan.expenses.reduce((sum, e) => sum + e.amount, 0);
-  const remainingBudget = plan.plannedBudget - totalSpent;
+  const totalSpentBRL = plan.expenses.reduce((sum, e) => sum + e.amount, 0);
+  const plannedBRL = plan.plannedBudget;
+  
+  const totalSpent = convert(totalSpentBRL);
+  const planned = convert(plannedBRL);
+  const remainingBudget = planned - totalSpent;
   const isOverBudget = remainingBudget < 0;
 
   const categoryData = Object.entries(
     plan.expenses.reduce((acc, curr) => {
-      acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
+      acc[curr.category] = (acc[curr.category] || 0) + convert(curr.amount);
       return acc;
     }, {} as Record<string, number>)
   ).map(([name, value]) => ({ name, value }));
@@ -38,13 +44,13 @@ const Dashboard: React.FC<DashboardProps> = ({ plan, language }) => {
         <StatCard 
           icon={<Wallet className="text-indigo-600" />} 
           title={t.totalSpent} 
-          value={`R$ ${totalSpent.toLocaleString()}`} 
-          subtitle={`${t.planned}: R$ ${plan.plannedBudget.toLocaleString()}`}
+          value={formatCurrency(totalSpent, currency.code, currency.symbol)} 
+          subtitle={`${t.planned}: ${formatCurrency(planned, currency.code, currency.symbol)}`}
         />
         <StatCard 
           icon={<TrendingDown className={isOverBudget ? "text-red-500" : "text-emerald-500"} />} 
           title={t.balance} 
-          value={`R$ ${remainingBudget.toLocaleString()}`} 
+          value={formatCurrency(remainingBudget, currency.code, currency.symbol)} 
           subtitle={isOverBudget ? t.overBudget : t.withinBudget}
           alert={isOverBudget}
         />
@@ -82,7 +88,8 @@ const Dashboard: React.FC<DashboardProps> = ({ plan, language }) => {
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: number) => `R$ ${value.toLocaleString()}`} />
+                  {/* Fixed type error: casting value to any and converting to Number for compatibility with formatCurrency, as Tooltip value is inferred as unknown */}
+                  <Tooltip formatter={(value: any) => formatCurrency(Number(value), currency.code, currency.symbol)} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
@@ -95,7 +102,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plan, language }) => {
             {categoryData.map((cat, i) => (
               <div key={cat.name} className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }}></div>
-                <span className="text-sm text-slate-600 font-medium">{cat.name}: <span className="text-slate-900">R$ {cat.value.toLocaleString()}</span></span>
+                <span className="text-sm text-slate-600 font-medium">{cat.name}: <span className="text-slate-900">{formatCurrency(cat.value, currency.code, currency.symbol)}</span></span>
               </div>
             ))}
           </div>
