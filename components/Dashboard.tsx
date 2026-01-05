@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { TravelPlan, Language, Currency } from '../types';
@@ -88,7 +89,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plan, language, currency, convert
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  {/* Fixed type error: casting value to any and converting to Number for compatibility with formatCurrency, as Tooltip value is inferred as unknown */}
+                  {/* Fix: Explicitly cast value to any then convert to Number to resolve 'unknown' to 'number' assignment error */}
                   <Tooltip formatter={(value: any) => formatCurrency(Number(value), currency.code, currency.symbol)} />
                 </PieChart>
               </ResponsiveContainer>

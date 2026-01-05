@@ -104,6 +104,9 @@ const App: React.FC = () => {
     }
   };
 
+  // Determina se deve exibir o título padrão traduzido ou o que o usuário digitou
+  const displayDestination = plan.destination === 'Minha Viagem' ? t.defaultTripName : plan.destination;
+
   return (
     <div className="flex min-h-screen bg-slate-50">
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col sticky top-0 h-screen">
@@ -167,7 +170,7 @@ const App: React.FC = () => {
         <header className="bg-white border-b border-slate-200 px-8 py-4 sticky top-0 z-10">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-2xl font-bold text-slate-800">{plan.destination}</h2>
+              <h2 className="text-2xl font-bold text-slate-800">{displayDestination}</h2>
               <p className="text-slate-500 text-sm">{t.subtitle}</p>
             </div>
             
