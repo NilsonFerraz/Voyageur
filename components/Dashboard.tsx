@@ -1,17 +1,20 @@
 
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis } from 'recharts';
-import { TravelPlan, ExpenseCategory } from '../types';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { TravelPlan, Language } from '../types';
 import { TrendingDown, Wallet, Calendar, ListChecks, AlertCircle } from 'lucide-react';
+import { translations } from '../translations';
 
 interface DashboardProps {
   plan: TravelPlan;
   onUpdate: (plan: TravelPlan) => void;
+  language: Language;
 }
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
 
-const Dashboard: React.FC<DashboardProps> = ({ plan }) => {
+const Dashboard: React.FC<DashboardProps> = ({ plan, language }) => {
+  const t = translations[language];
   const totalSpent = plan.expenses.reduce((sum, e) => sum + e.amount, 0);
   const remainingBudget = plan.plannedBudget - totalSpent;
   const isOverBudget = remainingBudget < 0;
@@ -31,39 +34,37 @@ const Dashboard: React.FC<DashboardProps> = ({ plan }) => {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      {/* Top Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           icon={<Wallet className="text-indigo-600" />} 
-          title="Gasto Total" 
+          title={t.totalSpent} 
           value={`R$ ${totalSpent.toLocaleString()}`} 
-          subtitle={`Orçamento: R$ ${plan.plannedBudget.toLocaleString()}`}
+          subtitle={`${t.planned}: R$ ${plan.plannedBudget.toLocaleString()}`}
         />
         <StatCard 
           icon={<TrendingDown className={isOverBudget ? "text-red-500" : "text-emerald-500"} />} 
-          title="Saldo" 
+          title={t.balance} 
           value={`R$ ${remainingBudget.toLocaleString()}`} 
-          subtitle={isOverBudget ? "Orçamento excedido!" : "Dentro do planejado"}
+          subtitle={isOverBudget ? t.overBudget : t.withinBudget}
           alert={isOverBudget}
         />
         <StatCard 
           icon={<Calendar className="text-amber-500" />} 
-          title="Roteiro" 
-          value={`${plan.itinerary.length} Itens`} 
-          subtitle="Atividades planejadas"
+          title={t.itinerary} 
+          value={`${plan.itinerary.length} ${t.itineraryItems.split(' ')[0]}`} 
+          subtitle={t.itineraryItems}
         />
         <StatCard 
           icon={<ListChecks className="text-emerald-500" />} 
-          title="Checklist" 
+          title={t.checklists} 
           value={`${Math.round((checklistStats.reduce((a, b) => a + b.completed, 0) / Math.max(1, checklistStats.reduce((a, b) => a + b.total, 0))) * 100)}%`} 
-          subtitle="Itens concluídos"
+          subtitle={t.completedItems}
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Budget Distribution */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-800 mb-6">Distribuição de Gastos</h3>
+          <h3 className="text-lg font-semibold text-slate-800 mb-6">{t.budgetDistribution}</h3>
           <div className="h-[300px] w-full">
             {categoryData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -86,7 +87,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plan }) => {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-slate-400 italic">
-                Nenhuma despesa registrada ainda.
+                {t.noExpenses}
               </div>
             )}
           </div>
@@ -100,9 +101,8 @@ const Dashboard: React.FC<DashboardProps> = ({ plan }) => {
           </div>
         </div>
 
-        {/* Checklists Progress */}
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-800 mb-6">Progresso das Listas</h3>
+          <h3 className="text-lg font-semibold text-slate-800 mb-6">{t.listProgress}</h3>
           <div className="space-y-6">
             {checklistStats.map((list) => (
               <div key={list.name} className="space-y-2">
@@ -119,7 +119,7 @@ const Dashboard: React.FC<DashboardProps> = ({ plan }) => {
               </div>
             ))}
             {checklistStats.length === 0 && (
-              <p className="text-slate-400 text-center py-10 italic">Nenhuma checklist criada.</p>
+              <p className="text-slate-400 text-center py-10 italic">{t.emptyList}</p>
             )}
           </div>
         </div>

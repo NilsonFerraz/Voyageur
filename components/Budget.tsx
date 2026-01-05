@@ -1,16 +1,19 @@
 
 import React, { useState } from 'react';
-import { Plus, Trash2, Tag, Calendar, Banknote } from 'lucide-react';
-import { TravelPlan, Expense, ExpenseCategory } from '../types';
+import { Plus, Trash2, Tag, Calendar } from 'lucide-react';
+import { TravelPlan, Expense, ExpenseCategory, Language } from '../types';
+import { translations } from '../translations';
 
 interface BudgetProps {
   plan: TravelPlan;
   onUpdate: (plan: TravelPlan) => void;
+  language: Language;
 }
 
 const CATEGORIES: ExpenseCategory[] = ['Transporte', 'Hospedagem', 'Alimentação', 'Passeios', 'Compras', 'Outros'];
 
-const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
+const Budget: React.FC<BudgetProps> = ({ plan, onUpdate, language }) => {
+  const t = translations[language];
   const [newExpense, setNewExpense] = useState<Partial<Expense>>({
     description: '',
     amount: 0,
@@ -51,11 +54,10 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      {/* Settings Section */}
       <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-6 items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-slate-800">Definição de Verba</h3>
-          <p className="text-slate-500 text-sm">Acompanhe seus gastos contra o limite planejado.</p>
+          <h3 className="text-lg font-semibold text-slate-800">{t.plannedBudget}</h3>
+          <p className="text-slate-500 text-sm">{t.subtitle}</p>
         </div>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-semibold text-sm">R$</span>
@@ -69,12 +71,11 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Add Expense Form */}
         <div className="lg:col-span-1 bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-fit sticky top-24">
-          <h3 className="text-lg font-semibold text-slate-800 mb-6">Adicionar Despesa</h3>
+          <h3 className="text-lg font-semibold text-slate-800 mb-6">{t.addExpense}</h3>
           <form onSubmit={addExpense} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Descrição</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t.description}</label>
               <input 
                 required
                 type="text" 
@@ -86,7 +87,7 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Valor (R$)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t.amount} (R$)</label>
                 <input 
                   required
                   type="number" 
@@ -97,7 +98,7 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Data</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">{t.date}</label>
                 <input 
                   type="date" 
                   value={newExpense.date}
@@ -107,7 +108,7 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Categoria</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t.category}</label>
               <select 
                 value={newExpense.category}
                 onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value as ExpenseCategory })}
@@ -120,20 +121,19 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
               type="submit"
               className="w-full bg-indigo-600 text-white font-semibold py-2.5 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 mt-4"
             >
-              <Plus size={20} /> Adicionar
+              <Plus size={20} /> {t.add}
             </button>
           </form>
         </div>
 
-        {/* Expenses List */}
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <table className="w-full text-left">
               <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
                 <tr>
-                  <th className="px-6 py-4 font-semibold">Despesa</th>
-                  <th className="px-6 py-4 font-semibold">Categoria</th>
-                  <th className="px-6 py-4 font-semibold text-right">Valor</th>
+                  <th className="px-6 py-4 font-semibold">{t.description}</th>
+                  <th className="px-6 py-4 font-semibold">{t.category}</th>
+                  <th className="px-6 py-4 font-semibold text-right">{t.amount}</th>
                   <th className="px-6 py-4 font-semibold text-center w-10"></th>
                 </tr>
               </thead>
@@ -141,7 +141,7 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
                 {plan.expenses.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-6 py-12 text-center text-slate-400 italic">
-                      Nenhuma despesa registrada.
+                      {t.noExpenses}
                     </td>
                   </tr>
                 ) : (
@@ -150,7 +150,7 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
                       <td className="px-6 py-4">
                         <div className="font-medium text-slate-800">{expense.description}</div>
                         <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                          <Calendar size={12} /> {new Date(expense.date).toLocaleDateString('pt-BR')}
+                          <Calendar size={12} /> {new Date(expense.date).toLocaleDateString(language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES')}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -173,17 +173,6 @@ const Budget: React.FC<BudgetProps> = ({ plan, onUpdate }) => {
                   ))
                 )}
               </tbody>
-              {plan.expenses.length > 0 && (
-                <tfoot className="bg-slate-50">
-                  <tr>
-                    <td colSpan={2} className="px-6 py-4 font-semibold text-slate-700">Total</td>
-                    <td className="px-6 py-4 text-right font-black text-indigo-700 text-lg">
-                      R$ {plan.expenses.reduce((sum, e) => sum + e.amount, 0).toLocaleString()}
-                    </td>
-                    <td></td>
-                  </tr>
-                </tfoot>
-              )}
             </table>
           </div>
         </div>

@@ -1,14 +1,17 @@
 
 import React, { useState } from 'react';
-import { Plus, Trash2, MapPin, Clock, Info, GripVertical } from 'lucide-react';
-import { TravelPlan, ItineraryItem } from '../types';
+import { Plus, Trash2, MapPin, Clock, Info } from 'lucide-react';
+import { TravelPlan, ItineraryItem, Language } from '../types';
+import { translations } from '../translations';
 
 interface ItineraryProps {
   plan: TravelPlan;
   onUpdate: (plan: TravelPlan) => void;
+  language: Language;
 }
 
-const Itinerary: React.FC<ItineraryProps> = ({ plan, onUpdate }) => {
+const Itinerary: React.FC<ItineraryProps> = ({ plan, onUpdate, language }) => {
+  const t = translations[language];
   const [newItem, setNewItem] = useState<Partial<ItineraryItem>>({
     date: new Date().toISOString().split('T')[0],
     time: '10:00',
@@ -57,13 +60,12 @@ const Itinerary: React.FC<ItineraryProps> = ({ plan, onUpdate }) => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeIn">
-      {/* Form Sidebar */}
       <div className="lg:col-span-1 bg-white p-6 rounded-xl border border-slate-200 shadow-sm h-fit sticky top-24">
-        <h3 className="text-lg font-semibold text-slate-800 mb-6">Nova Atividade</h3>
+        <h3 className="text-lg font-semibold text-slate-800 mb-6">{t.newActivity}</h3>
         <form onSubmit={addItem} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Data</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t.date}</label>
               <input 
                 type="date" 
                 value={newItem.date}
@@ -72,7 +74,7 @@ const Itinerary: React.FC<ItineraryProps> = ({ plan, onUpdate }) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Horário</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t.time}</label>
               <input 
                 type="time" 
                 value={newItem.time}
@@ -82,57 +84,56 @@ const Itinerary: React.FC<ItineraryProps> = ({ plan, onUpdate }) => {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Atividade</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t.activity}</label>
             <input 
               required
               type="text" 
               value={newItem.activity}
               onChange={(e) => setNewItem({ ...newItem, activity: e.target.value })}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              placeholder="Ex: Visita ao Museu do Louvre"
+              placeholder="Ex: Museum visit"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Local / Endereço</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t.location}</label>
             <input 
               type="text" 
               value={newItem.location}
               onChange={(e) => setNewItem({ ...newItem, location: e.target.value })}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-              placeholder="Ex: Rua Tal, 123"
+              placeholder="Ex: 123 Street"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Observações</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">{t.notes}</label>
             <textarea 
               value={newItem.notes}
               onChange={(e) => setNewItem({ ...newItem, notes: e.target.value })}
               rows={3}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none resize-none"
-              placeholder="Dicas extras, reservas, contatos..."
+              placeholder="..."
             />
           </div>
           <button 
             type="submit"
             className="w-full bg-indigo-600 text-white font-semibold py-2.5 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 mt-2"
           >
-            <Plus size={20} /> Salvar no Roteiro
+            <Plus size={20} /> {t.saveItinerary}
           </button>
         </form>
       </div>
 
-      {/* Itinerary Timeline */}
       <div className="lg:col-span-2 space-y-8">
         {sortedDates.length === 0 ? (
           <div className="bg-white p-12 rounded-xl border border-dashed border-slate-300 text-center text-slate-400">
-            Comece a planejar adicionando sua primeira atividade ao lado.
+            {t.emptyItinerary}
           </div>
         ) : (
           sortedDates.map((date) => (
             <div key={date} className="relative pl-6 border-l-2 border-indigo-100 space-y-4">
               <div className="absolute -left-2 top-0 w-4 h-4 rounded-full bg-indigo-600 ring-4 ring-indigo-50"></div>
-              <h3 className="text-lg font-bold text-slate-800 pt-1">
-                {new Date(date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              <h3 className="text-lg font-bold text-slate-800 pt-1 capitalize">
+                {new Date(date + 'T00:00:00').toLocaleDateString(language === 'pt' ? 'pt-BR' : language === 'en' ? 'en-US' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
               </h3>
               
               <div className="space-y-4">

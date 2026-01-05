@@ -1,6 +1,8 @@
 
 export type ExpenseCategory = 'Transporte' | 'Hospedagem' | 'Alimentação' | 'Passeios' | 'Compras' | 'Outros';
 
+export type Language = 'pt' | 'en' | 'es';
+
 export interface Expense {
   id: string;
   description: string;
